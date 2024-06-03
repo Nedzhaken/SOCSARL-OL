@@ -1,38 +1,36 @@
 # SOCSARL-OL
 
-**[`Website`](https://www.epfl.ch/labs/vita/research/planning/crowd-robot-interaction/) | [`Paper`](https://arxiv.org/abs/1809.08835) | [`Video`](https://youtu.be/0sNVtQ9eqjA)**
+**[`Paper`](https://arxiv.org/abs/1809.08835) | [`Video`](https://youtu.be/0sNVtQ9eqjA)**
 
-This repository contains the codes for our ICRA 2019 paper. For more details, please refer to the paper
-[Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning](https://arxiv.org/abs/1809.08835).
+This repository contains the codes for our paper: Online Context Learning for Socially-aware Navigation.
 
-Please find our more recent work in the following links 
-- [Relational Graph Learning for Crowd Navigation, IROS, 2020](https://github.com/ChanganVR/RelationalGraphLearning).
-- [Social NCE: Contrastive Learning of Socially-aware Motion Representations, ICCV, 2021](https://github.com/vita-epfl/social-nce).
+In our paper, we apply the CrowdNav simulator and the Thor-Magni dataset to train the social module.   
+- [Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning, ICRA, 2019](https://github.com/vita-epfl/CrowdNav).
+- [THOR-MAGNI: A Large-scale Indoor Motion Capture Recording of Human Movement and Robot Interaction, 2024](https://github.com/tmralmeida/magni-dash/tree/dash-public?tab=readme-ov-file).
 
 ## Abstract
-Mobility in an effective and socially-compliant manner is an essential yet challenging task for robots operating in crowded spaces.
-Recent works have shown the power of deep reinforcement learning techniques to learn socially cooperative policies.
-However, their cooperation ability deteriorates as the crowd grows since they typically relax the problem as a one-way Human-Robot interaction problem.
-In this work, we want to go beyond first-order Human-Robot interaction and more explicitly model Crowd-Robot Interaction (CRI).
-We propose to (i) rethink pairwise interactions with a self-attention mechanism, and
-(ii) jointly model Human-Robot as well as Human-Human interactions in the deep reinforcement learning framework.
-Our model captures the Human-Human interactions occurring in dense crowds that indirectly affects the robot's anticipation capability.
-Our proposed attentive pooling mechanism learns the collective importance of neighboring humans with respect to their future states.
-Various experiments demonstrate that our model can anticipate human dynamics and navigate in crowds with time efficiency,
-outperforming state-of-the-art methods.
-
+Social robot navigation is a complex problem that requires the implementation of high-quality human-robot interactions to ensure that robot movements do not reduce human comfort or performance.
+The objective of this research is to enhance the social efficiency and reliability of mobile robot navigation in a variety of context environments.
+In order to achieve this, a new deep reinforcement learning method, SOCSARL-OL, has been proposed for robot navigation. The proposed method is designed to implement efficient human-robot interaction in different social contexts with the help of a social online learning module.
+The efficacy of the proposed method was demonstrated in a variety of scenarios, with the most challenging scenario exhibiting an 8\% improvement in reaching the robot's goal without collision over the state-of-the-art methods.
+The objective of this research is to enhance the social efficiency and reliability of mobile robot navigation in a variety of context environments.
 
 ## Method Overview
-<img src="https://i.imgur.com/YOPHXD1.png" width="1000" />
+<img src="Conceptual_diagram.jpg" alt="Conceptual_diagram.jpg" width="1000" />
 
-## Setup
+## Train the Social module on the Magni dataset
+```
+cd Magni
+```
+
+## Setup of CrowdNav simulator
 1. Install [Python-RVO2](https://github.com/sybrenstuvel/Python-RVO2) library
 2. Install crowd_sim and crowd_nav into pip
 ```
 pip3 install -e .
 ```
 
-## Getting Started
+## Getting Started in CrowdNav simulator
 This repository is organized in two parts: gym_crowd/ folder contains the simulation environment and
 crowd_nav/ folder contains codes for training and testing the policies. Details of the simulation framework can be found
 [here](crowd_sim/README.md). Below are the instructions for training and testing policies, and they should be executed
@@ -67,14 +65,8 @@ python3 utils/plot.py data/output/output.log
 CADRL             | LSTM-RL
 :-------------------------:|:-------------------------:
 <img src="https://i.imgur.com/vrWsxPM.gif" width="400" />|<img src="https://i.imgur.com/6gjT0nG.gif" width="400" />
-SARL             |  OM-SARL
+SARL             |  SOCSARL-OL
 <img src="https://i.imgur.com/rUtAGVP.gif" width="400" />|<img src="https://i.imgur.com/UXhcvZL.gif" width="400" />
-
-
-## Learning Curve
-Learning curve comparison between different methods in an invisible setting.
-
-<img src="https://i.imgur.com/l5UC3qa.png" width="600" />
 
 ## Citation
 If you find the codes or paper useful for your research, please cite our paper:
