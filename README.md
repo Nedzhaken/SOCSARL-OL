@@ -1,6 +1,6 @@
 # SOCSARL-OL
 
-**[`Paper`](https://arxiv.org/abs/1809.08835) | [`Video`](https://youtu.be/bwmoqu_fyUo)**
+**[`Paper`]() | [`Video`](https://youtu.be/bwmoqu_fyUo)**
 
 This repository contains the codes for our paper: Online Context Learning for Socially-aware Navigation.
 
