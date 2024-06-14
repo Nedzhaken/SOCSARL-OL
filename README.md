@@ -2,9 +2,9 @@
 
 **[`Paper`]() | [`Video`](https://youtu.be/bwmoqu_fyUo)**
 
-This repository contains the codes for our paper: Online Context Learning for Socially-aware Navigation.
+This repository contains the code and data for our paper titled **Online Context Learning for Socially-compliant Navigation**.
 
-In our paper, we apply the CrowdNav simulator and the Thor-Magni dataset to train the social module.   
+In the paper, we apply the CrowdNav simulator and the Thor-Magni dataset to train the social module.   
 - [Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning, ICRA, 2019](https://github.com/vita-epfl/CrowdNav).
 - [THOR-MAGNI: A Large-scale Indoor Motion Capture Recording of Human Movement and Robot Interaction, 2024](https://github.com/tmralmeida/magni-dash/tree/dash-public?tab=readme-ov-file).
 
