@@ -1,6 +1,6 @@
 # SOCSARL-OL
 
-**[`Paper`](https://arxiv.org/abs/1809.08835) | [`Video`](https://youtu.be/0sNVtQ9eqjA)**
+**[`Paper`](https://arxiv.org/abs/1809.08835) | [`Video`](https://youtu.be/bwmoqu_fyUo)**
 
 This repository contains the codes for our paper: Online Context Learning for Socially-aware Navigation.
 
@@ -69,14 +69,7 @@ SARL             |  SOCSARL-OL
 <img src="https://i.imgur.com/rUtAGVP.gif" width="400" />|<img src="https://i.imgur.com/UXhcvZL.gif" width="400" />
 
 ## Citation
-If you find the codes or paper useful for your research, please cite our paper:
+If you are considering using this code, please reference the following:
 ```bibtex
-@inproceedings{chen2019crowd,
-  title={Crowd-robot interaction: Crowd-aware robot navigation with attention-based deep reinforcement learning},
-  author={Chen, Changan and Liu, Yuejiang and Kreiss, Sven and Alahi, Alexandre},
-  booktitle={2019 International Conference on Robotics and Automation (ICRA)},
-  pages={6015--6022},
-  year={2019},
-  organization={IEEE}
-}
+coming soon
 ```
