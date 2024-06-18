@@ -1,6 +1,6 @@
 # SOCSARL-OL
 
-**[`Paper`]() | [`Video`](https://youtu.be/bwmoqu_fyUo)**
+**[`Paper`](http://arxiv.org/abs/2406.11495) | [`Video`](https://youtu.be/bwmoqu_fyUo)**
 
 This repository contains the code and data for our paper titled **Online Context Learning for Socially-compliant Navigation**.
 
@@ -61,7 +61,7 @@ python3 utils/plot.py data/output/output.log
 ```
 
 
-## Simulation Videos
+## Simulation Clips
 CADRL             | LSTM-RL
 :-------------------------:|:-------------------------:
 <img src="https://i.imgur.com/vrWsxPM.gif" width="400" />|<img src="https://i.imgur.com/6gjT0nG.gif" width="400" />
