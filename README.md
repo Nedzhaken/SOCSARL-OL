@@ -71,5 +71,10 @@ SARL             |  SOCSARL-OL
 ## Citation
 If you are considering using this code, please reference the following:
 ```bibtex
-coming soon
+@article{okunevich2024online,
+  title={Online Context Learning for Socially-compliant Navigation},
+  author={Okunevich, Iaroslav and Lombard, Alexandre and Krajnik, Tomas and Ruichek, Yassine and Yan, Zhi},
+  journal={arXiv preprint arXiv:2406.11495},
+  year={2024}
+}
 ```
