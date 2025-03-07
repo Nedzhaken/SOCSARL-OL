@@ -20,12 +20,19 @@ The objective of this research is to enhance the social efficiency and reliabili
 
 ## Train the Social module on the Magni dataset
 The Magni folder includes the dataset for the training, which is located in Clean_data folder.
+
 read_Magni_dataset.py contains a class Simulator to read the Magni dataset and  animate the trajectories.
+
 tracklets_creator.py contains a class TrackletsCreator, which is applied to read the data from the dataset, build the trajectories, split the trajectories into tracklets:
+
 load_csv_from_folder(folder) - download a data from 'folder' with csv dataset files;
+
 create_tracklets(step, hz, save = True, folder, velocity) - create the tracklets from the read trajectories and save these tracklets in .csv file in 'folder', if 'save' is True.
+
 'step' is the number of points in one tracklet.
+
 'hz' - is the frequency of points in a tracklet.
+
 'velocity' - if this flag is True, tracklets will include also the agent's velocity.
 
 ```
