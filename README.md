@@ -28,10 +28,10 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
   
 ## Files and Their Functions
 
-### `read_Magni_dataset.py`
+#### `read_Magni_dataset.py`
 - Contains the **Simulator** class, which reads the Magni dataset and animates the trajectories.
 
-### `tracklets_creator.py`
+#### `tracklets_creator.py`
 - Contains the **TrackletsCreator** class, which processes the dataset by reading data, building trajectories, and splitting them into tracklets.
 - **Key functions:**
 
@@ -46,7 +46,7 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
       - `hz` – Frequency of points in a tracklet.
       - `velocity` – If `True`, tracklets will include the agent’s velocity.
 
-### `classification.py`
+#### `classification.py`
 - Contains the **TrackletsClassificator** class, which classifies tracklets as **social** or **non-social**.
 - **Key functions:**
 
