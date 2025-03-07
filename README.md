@@ -19,24 +19,51 @@ The objective of this research is to enhance the social efficiency and reliabili
 <img src="Conceptual_diagram.jpg" alt="Conceptual_diagram.jpg" width="1000" />
 
 ## Train the Social module on the Magni dataset
-The Magni folder includes the dataset for the training, which is located in Clean_data folder.
+The **Magni** folder contains the dataset used for training, located within the **Clean_data** folder.  
+The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni dataset.  
 
-read_Magni_dataset.py contains a class Simulator to read the Magni dataset and  animate the trajectories.
+- Each tracklet consists of **16 points** (`step = 16`).
+- The frequency of points in a tracklet is **4 Hz** (`hz = 4`).
+- Each point includes the agent's velocity (`velocity = True`).
+  
+## Files and Their Functions
 
-tracklets_creator.py contains a class TrackletsCreator, which is applied to read the data from the dataset, build the trajectories, split the trajectories into tracklets:
+### `read_Magni_dataset.py`
+- Contains the **Simulator** class, which reads the Magni dataset and animates the trajectories.
 
-load_csv_from_folder(folder) - download a data from 'folder' with csv dataset files;
+### `tracklets_creator.py`
+- Contains the **TrackletsCreator** class, which processes the dataset by reading data, building trajectories, and splitting them into tracklets.
+- **Key functions:**
 
-create_tracklets(step, hz, save = True, folder, velocity) - create the tracklets from the read trajectories and save these tracklets in .csv file in 'folder', if 'save' is True.
+  - #### `load_csv_from_folder(folder=None)`
+    - Loads CSV dataset files from a specified `folder`.  
+    - If no folder is specified, it defaults to the folder set in the class constructor (**Clean_data**).
 
-'step' is the number of points in one tracklet.
+  - #### `create_tracklets(step, hz, save=True, folder, velocity)`
+    - Generates tracklets from the trajectories and saves them as CSV files in the specified `folder` (if `save=True`).
+    - **Parameters:**
+      - `step` – Number of points in each tracklet.
+      - `hz` – Frequency of points in a tracklet.
+      - `velocity` – If `True`, tracklets will include the agent’s velocity.
 
-'hz' - is the frequency of points in a tracklet.
+### `classification.py`
+- Contains the **TrackletsClassificator** class, which classifies tracklets as **social** or **non-social**.
+- **Key functions:**
 
-'velocity' - if this flag is True, tracklets will include also the agent's velocity.
+  - #### `train_and_test(train_dataloader, criterion, optimizer, max_epochs)`
+    - Trains the social module using CSV files with tracklets.
 
+  - #### `train_and_test_k_fold(train_dataloader, criterion, optimizer, max_epochs)`
+    - Trains the social module using CSV files with tracklets.
+    - Evaluates accuracy using **k-fold cross-validation**.
+
+## Running the Code
+
+To generate tracklets and train the social module, run the following commands:
 ```
 cd Magni
+python trackletscreator.py
+python classification.py
 ```
 
 ## Setup of CrowdNav simulator
