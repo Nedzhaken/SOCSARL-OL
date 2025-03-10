@@ -54,6 +54,20 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
     - Trains the social module using CSV files with tracklets.
     - Evaluates loss-accuracy using **k-fold cross-validation**.
 
+#### `plot.py`
+- Contains the **Drawer** class, which draws the human trajectory and its robot non-social copy.
+- **Key functions:**
+
+  - #### `plot_pair_trajectoies(ped_traj, rob_traj, st, end, index, save)`
+    - Draw the ped_traj human and rob_traj robot trajectories and save them in .pdf image.
+    - **Parameters:**
+      - `ped_traj` – list of human trajectories from the .scv file.
+      - `rob_traj` – list of robot trajectories from the .scv file.
+      - `st` – the start time of the trajectory drawing.
+      - `end` – the end time of the trajectory drawing.
+      - `index` – the number of human-robot trajectories from the list of human-robot trajectories (the class is specified to read several .csv files).
+      - `save` – If `True`, the pdf image will be saved.
+
 ## Running the Code
 ```
 cd Magni
