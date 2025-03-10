@@ -59,14 +59,14 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
 - **Key functions:**
 
   - #### `plot_pair_trajectoies(ped_traj, rob_traj, st, end, index, save)`
-    - Draw the ped_traj human and rob_traj robot trajectories and save them in .pdf image.
-    - **Parameters:**
-      - `ped_traj` – list of human trajectories from the .scv file.
-      - `rob_traj` – list of robot trajectories from the .scv file.
-      - `st` – the start time of the trajectory drawing.
-      - `end` – the end time of the trajectory drawing.
-      - `index` – the number of human-robot trajectories from the list of human-robot trajectories (the class is specified to read several .csv files).
-      - `save` – If `True`, the pdf image will be saved.
+  - Plots the trajectories of a human (`ped_traj`) and a robot (`rob_traj`) within a specified time range and saves the visualization as a `.pdf` file.
+  - **Parameters:**
+    - `ped_traj` – List of human trajectories from the `.csv` file.
+    - `rob_traj` – List of robot trajectories from the `.csv` file.
+    - `st` – Start time for trajectory visualization.
+    - `end` – End time for trajectory visualization.
+    - `index` – Index of the human-robot trajectory pair to plot (`ped_traj[index]` and `rob_traj[index]`).
+    - `save` – Boolean flag indicating whether to save the plot as a `.pdf` file.
 
 ## Running the Code
 ```
