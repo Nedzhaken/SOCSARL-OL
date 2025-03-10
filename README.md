@@ -52,7 +52,7 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
 
   - #### `train_and_test_k_fold(train_dataloader, criterion, optimizer, max_epochs)`
     - Trains the social module using CSV files with tracklets.
-    - Evaluates accuracy using **k-fold cross-validation**.
+    - Evaluates loss-accuracy using **k-fold cross-validation**.
 
 ## Running the Code
 ```
@@ -60,11 +60,11 @@ cd Magni
 ```
 (Optional) To generate tracklets with different parameters (`step, hz, velocity`) from the saved trajectories, run the following commands:
 ```
-python trackletscreator.py
+python3 trackletscreator.py
 ```
 To train the social module, run the following commands:
 ```
-python classification.py
+python3 classification.py
 ```
 
 ## Setup of CrowdNav simulator
