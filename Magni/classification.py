@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import time
+import datetime
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -164,6 +165,9 @@ class TrackletsClassificator:
         """
         The class is to classify the tracklets as social and non-social. 
         """
+        # the name of folder with prepared tracklet dataset as .csv file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        folder = os.path.join(script_dir, folder)
         # the torch tracklets dataset
         if norm:
             self.dataset = TrackletsDataset(folder, transforms.Compose([TrackletNormalization(), ToTensor()]))
@@ -179,6 +183,9 @@ class TrackletsClassificator:
         print(self.model)
 
     def train(self, train_data_gen, criterion, optimizer, device):
+        """
+        Train function of the social module. 
+        """
         # set the model to training mode. This will turn on layers that would
         # otherwise behave differently during evaluation, such as dropout
         self.model.train()
@@ -227,6 +234,9 @@ class TrackletsClassificator:
         return num_correct, loss.item()
 
     def test(self, test_data_gen, criterion, device):
+        """
+        Test function of the social module. 
+        """
         # set the model to evaluation mode. This will turn off layers that would
         # otherwise behave differently during training, such as dropout
         self.model.eval()
@@ -258,8 +268,12 @@ class TrackletsClassificator:
         return num_correct, loss.item()
 
     def train_and_test(self, train_data_gen, test_data_gen, criterion, optimizer, max_epochs, verbose=True):
+        """
+        Trains, tests, and saves the social module. Additionally, it generates visualizations of loss and accuracy results.
+        """
         # automatically determine the device that PyTorch should use for computation
-        device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        print(device)
 
         # move model to the device which will be used for train and test
         self.model.to(device)
@@ -288,9 +302,12 @@ class TrackletsClassificator:
                 print(f'[Epoch {epoch + 1}/{max_epochs}]'
                     f" loss: {history_train['loss'][-1]:.4f}, acc: {history_train['acc'][-1]:2.2f}%"
                     f" - test_loss: {history_test['loss'][-1]:.4f}, test_acc: {history_test['acc'][-1]:2.2f}%")
+                
+        model_path = f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pth"
+        torch.save(self.model.state_dict(), model_path)
 
         # generate diagnostic plots for the loss and accuracy
-        fig, axes = plt.subplots(ncols=2, figsize=(9, 4.5))
+        _ , axes = plt.subplots(ncols=2, figsize=(9, 4.5))
         for ax, metric in zip(axes, ['loss', 'acc']):
             ax.plot(history_train[metric])
             ax.plot(history_test[metric])
@@ -301,49 +318,13 @@ class TrackletsClassificator:
 
         return self.model
 
-    def train_and_save(self, train_data_gen, criterion, optimizer, max_epochs, verbose=True):
-        # automatically determine the device that PyTorch should use for computation
-        device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
-        print(device)
-        # move model to the device which will be used for train
-        self.model.to(device)
-
-        # Track the value of the loss function and model accuracy across epochs
-        history_train = {'loss': [], 'acc': []}
-        start_time = time.time()
-        for epoch in range(max_epochs):
-
-            # run the training loop and calculate the accuracy
-            # remember that the length of a data generator is the number of batches,
-            # so we multiply it by the batch size to recover the total number of sequences
-            num_correct, loss = self.train(train_data_gen, criterion, optimizer, device)
-            accuracy = float(num_correct) / (len(train_data_gen) * train_data_gen.batch_size) * 100
-            history_train['loss'].append(loss)
-            history_train['acc'].append(accuracy)
-
-            if verbose or epoch + 1 == max_epochs:
-                # print("--- %s seconds ---" % (time.time() - start_time))
-                print(f'{time.time() - start_time:.4f}: [Epoch {epoch + 1}/{max_epochs}]'
-                    f" loss: {history_train['loss'][-1]:.4f}, acc: {history_train['acc'][-1]:2.2f}%")
-        
-        
-        model_path = 'model.pth'
-        torch.save(self.model.state_dict(), model_path)
-
-        # generate diagnostic plots for the loss and accuracy
-        fig, axes = plt.subplots(ncols=2, figsize=(9, 4.5))
-        for ax, metric in zip(axes, ['loss', 'acc']):
-            ax.plot(history_train[metric])
-            ax.set_xlabel('epoch', fontsize=12)
-            ax.set_ylabel(metric, fontsize=12)
-            ax.legend(['Train'], loc='best')
-        plt.show()
-
-        return self.model
-
     def load_and_test(self, test_data_gen, criterion, model_path = 'model.pth'):
+        """
+        Load the weights of the social module and calcualte the test loss-accuracy.
+        """
         # automatically determine the device that PyTorch should use for computation
-        device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        print(device)
         # download the model
         self.model.load_state_dict(torch.load(model_path))
 
@@ -367,13 +348,15 @@ class TrackletsClassificator:
         return self.model
 
     def train_and_test_k_fold(self, dataset, criterion, max_epochs, k_folds = 5, verbose=True):
+        """
+        Trains and tests the social module using k-fold cross-validation.
+        """
         # initialize the k-fold cross validation
         kf = KFold(n_splits=k_folds, shuffle=True)
 
         # automatically determine the device that PyTorch should use for computation
-        device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
-
-        
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')        
+        print(device)
 
         k_fold_test = []
         start_time = time.time()
@@ -449,15 +432,14 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size,
 # setup the RNN and training settings
 criterion   = nn.BCELoss()
 optimizer   = torch.optim.RMSprop(classificator.model.parameters(), lr=0.001)
-max_epochs  = 100
+max_epochs  = 1
 
 print('batch_size ' + str(batch_size))
 print(criterion)
 print(optimizer)
-# train the model
-# model = classificator.train_and_test(train_dataloader, test_dataloader, criterion, optimizer, max_epochs)
-# model = classificator.train_and_test_k_fold(classificator.dataset, criterion, max_epochs)
 
-model = classificator.train_and_save(train_dataloader, criterion, optimizer, max_epochs)
-# model = classificator.load_and_test(test_dataloader, criterion, model_path = 'model_norm.pth')
+# train the model
+model = classificator.train_and_test(train_dataloader, test_dataloader, criterion, optimizer, max_epochs)
+# model = classificator.train_and_test_k_fold(classificator.dataset, criterion, max_epochs)
+# model = classificator.load_and_test(test_dataloader, criterion, model_path = 'model_2025-03-10_20-22-38.pth')
 
