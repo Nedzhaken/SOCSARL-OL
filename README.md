@@ -60,7 +60,7 @@ cd Magni
 ```
 (Optional) To generate tracklets with different parameters (`step, hz, velocity`) from the saved trajectories, run the following commands:
 ```
-python3 trackletscreator.py
+python3 tracklets_creator.py
 ```
 To train the social module, run the following commands:
 ```
