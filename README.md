@@ -19,7 +19,7 @@ The objective of this research is to enhance the social efficiency and reliabili
 <img src="Conceptual_diagram.jpg" alt="Conceptual_diagram.jpg" width="1000" />
 
 ## Train the Social module on the Magni dataset
-The **Magni** folder contains the dataset used for training, located within the **Clean_data** folder.  
+The **Magni** folder contains the trajectory dataset used for training, which is located in the **Clean_data** folder. These trajectories consist of the human trajectories from the Magni dataset and their copies created using the ORCA algorithm to have non-social trajectories.
 The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni dataset.  
 
 - Each tracklet consists of **16 points** (`step = 16`).
@@ -27,9 +27,6 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
 - Each point includes the agent's velocity (`velocity = True`).
   
 ## Files and Their Functions
-
-#### `read_Magni_dataset.py`
-- Contains the **Simulator** class, which reads the Magni dataset and animates the trajectories.
 
 #### `tracklets_creator.py`
 - Contains the **TrackletsCreator** class, which processes the dataset by reading data, building trajectories, and splitting them into tracklets.
@@ -58,11 +55,15 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
     - Evaluates accuracy using **k-fold cross-validation**.
 
 ## Running the Code
-
-To generate tracklets and train the social module, run the following commands:
 ```
 cd Magni
+```
+(Optional) To generate tracklets with different parameters (`step, hz, velocity`) from the saved trajectories, run the following commands:
+```
 python trackletscreator.py
+```
+To train the social module, run the following commands:
+```
 python classification.py
 ```
 
