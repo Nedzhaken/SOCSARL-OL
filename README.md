@@ -87,6 +87,10 @@ python3 classification.py
 ```
 pip3 install -e .
 ```
+(optional) Uninstall crowd_sim and crowd_nav into pip
+```
+pip3 uninstall crowdnav
+```
 
 ## Getting Started in CrowdNav simulator
 This repository is organized in two parts: gym_crowd/ folder contains the simulation environment and
