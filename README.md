@@ -93,8 +93,8 @@ pip3 uninstall crowdnav
 ```
 
 ## Getting Started in CrowdNav simulator
-This repository is organized in two parts: gym_crowd/ folder contains the simulation environment and
-crowd_nav/ folder contains codes for training and testing the policies. Details of the simulation framework can be found
+This repository is organized in two parts: **gym_crowd/** folder contains the simulation environment and
+**crowd_nav/** folder contains codes for training and testing the policies. Details of the simulation framework can be found
 [here](crowd_sim/README.md). Below are the instructions for training and testing policies, and they should be executed
 inside the crowd_nav/ folder.
 
@@ -122,6 +122,23 @@ python3 test.py --policy sarl --model_dir data/output --phase test --visualize -
 python3 utils/plot.py data/output/output.log
 ```
 
+## Robot Control Methods
+
+The robot can be controlled using the following policies: **CADRL, LSTM-RL, ST2, SARL, SOCSARL,** and **SOCSARL-OL**.  
+
+Pretrained models for **CADRL, LSTM-RL, ST2, and SARL** are available in the **Models** directory. To test these methods, move the corresponding **output** folder into **crowd_nav/data**.  
+
+**SOCSARL and SOCSARL-OL** use the **SARL output** for implementation.  
+
+### Example Test Commands:
+```
+python3 test.py --policy cadrl --model_dir data/output --phase test
+python3 test.py --policy lstm_rl --model_dir data/output --phase test
+python3 test.py --policy st2 --model_dir data/output --phase test
+python3 test.py --policy sarl --model_dir data/output --phase test
+python3 test.py --policy socsarl --model_dir data/output --phase test
+python3 test.py --policy socsarl --ol --model_dir data/output --phase test
+```
 
 ## Simulation Clips
 CADRL             | LSTM-RL
