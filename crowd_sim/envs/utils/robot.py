@@ -3,8 +3,6 @@ from crowd_sim.envs.utils.state import JointState
 from crowd_sim.envs.policy.orca import ORCA
 from crowd_sim.envs.utils.action import ActionRot
 import math
-# import pprint module
-from pprint import pprint
 
 
 class Robot(Agent):
@@ -43,49 +41,30 @@ class Robot(Agent):
     def clean_goals(self):
         self.next_goal_list = []
 
-    #ORCA part nav
-    # def act(self, ob, dist_best = None, dist_real = None):
-    #     if self.policy is None:
-    #         raise AttributeError('Policy attribute has to be set!')
-    #     state = JointState(self.get_full_state(), ob)
-    #     dist = self.dist_to_closest_human(ob)
-    #     if type(self.policy) == ORCA:
-    #         action = self.policy.predict(state)
-    #     elif dist < self.dist_treshold:
-    #         action = self.policy.predict(state, dist_best, dist_real)
-    #     else:
-    #         action = self.pred_policy.predict(state)
-    #         if self.kinematics != 'holonomic': action = self.actionXY_to_actionROT(action)
-    #     return action
-        
-    # def act_test(self, ob, tracklet, classificator, dist_best = None, dist_real = None):
-    #     if self.policy is None:
-    #         raise AttributeError('Policy attribute has to be set!')
-    #     state = JointState(self.get_full_state(), ob)
-    #     dist = self.dist_to_closest_human(ob)
-    #     if dist < self.dist_treshold:
-    #         action = self.policy.predict_class(state, classificator, tracklet, self.freq_time_param, dist_best, dist_real)
-    #     else:
-    #         action = self.pred_policy.predict(state)
-    #         if self.kinematics != 'holonomic': action = self.actionXY_to_actionROT(action)
-    #     return action
-    
-    #Normal
     def act(self, ob, dist_best = None, dist_real = None):
         if self.policy is None:
             raise AttributeError('Policy attribute has to be set!')
         state = JointState(self.get_full_state(), ob)
+        dist = self.dist_to_closest_human(ob)
         if type(self.policy) == ORCA:
             action = self.policy.predict(state)
-        else:
+        elif dist < self.dist_treshold:
             action = self.policy.predict(state, dist_best, dist_real)
+        else:
+            action = self.pred_policy.predict(state)
+            if self.kinematics != 'holonomic': action = self.actionXY_to_actionROT(action)
         return action
-    
+        
     def act_test(self, ob, tracklet, classificator, dist_best = None, dist_real = None):
         if self.policy is None:
             raise AttributeError('Policy attribute has to be set!')
         state = JointState(self.get_full_state(), ob)
-        action = self.policy.predict_class(state, classificator, tracklet, self.freq_time_param, dist_best, dist_real)
+        dist = self.dist_to_closest_human(ob)
+        if dist < self.dist_treshold:
+            action = self.policy.predict_class(state, classificator, tracklet, self.freq_time_param, dist_best, dist_real)
+        else:
+            action = self.pred_policy.predict(state)
+            if self.kinematics != 'holonomic': action = self.actionXY_to_actionROT(action)
         return action
     
     def dist_to_closest_human(self, ob):

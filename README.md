@@ -87,7 +87,7 @@ python3 classification.py
 ```
 pip3 install -e .
 ```
-(optional) Uninstall crowd_sim and crowd_nav into pip
+(optional) Uninstall crowd_sim and crowd_nav from pip
 ```
 pip3 uninstall crowdnav
 ```

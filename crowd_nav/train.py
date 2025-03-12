@@ -57,8 +57,7 @@ def main():
                         format='%(asctime)s, %(levelname)s: %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
     repo = git.Repo(search_parent_directories=True)
     logging.info('Current git head hash code: %s'.format(repo.head.object.hexsha))
-    # device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu else "cpu")
-    device = torch.device("cuda:1" if torch.cuda.is_available() and args.gpu else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu else "cpu")
     logging.info('Using device: %s', device)
 
     # configure policy
@@ -81,13 +80,13 @@ def main():
     env.set_robot(robot)
     robot.set_env(env)
 
-    if (policy.name == 'SARL-SOC'):
+    if (policy.name == 'SOCSARL'):
         # __________________________________________________________________________
         # PREDICTION BLOC
         robot.freq_time_param = 16
         robot.soc_class_coef = 0.75
         logging.info('The tracklet coef: %f', robot.soc_class_coef)
-        model_name = '/home/iaroslav/Crowd_nav_ol/crowd_nav/model_4hz.pth'
+        model_name = 'social_module_4hz.pth'
         robot.classificator = TrackletsClassificator(hidden_size = robot.freq_time_param, model_name = model_name, device = device)
         # __________________________________________________________________________
 

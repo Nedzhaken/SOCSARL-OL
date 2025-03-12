@@ -82,7 +82,6 @@ class Embedding(nn.Module):
     def forward(self, x):
         x = self.embedding(x)
         x = self.dropout(x)
-        # print(x)
         return x
 
 class Attention(nn.Module):
@@ -128,7 +127,6 @@ class Attention(nn.Module):
         k = k.permute([0, 1, 3, 2])                             # [300, 8, 16, 5]
         attn = torch.matmul(q, k)                               # [300, 8, 5, 5]
 
-        # print(attn.shape)
         # attn = q + k
         attn = attn * self.scales
         attn = self.softmax(attn)                               # [300, 8, 5, 5]
@@ -248,7 +246,6 @@ class Spatial_Temporal_Transformer(nn.Module):
 
     def forward(self, x):
         people_num = int(x.shape[1] / 3)
-        # x = x.reshape(-1, 3, 5, 13)
         x = x.reshape(-1, 3, people_num, 13)
         b, t, h, w = x.shape
         robot_state = x[:, 2:3, 0, :6].reshape(b, 6)

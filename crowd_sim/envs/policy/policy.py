@@ -36,7 +36,6 @@ class Policy(object):
     def predict(self, state):
         """
         Policy takes state as input and output an action
-
         """
         return
 

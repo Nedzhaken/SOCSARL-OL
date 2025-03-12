@@ -74,37 +74,6 @@ class MultiHumanRL(CADRL):
             self.action_values = torch.reshape(values_tensor, (-1,)).tolist()
             max_action = self.action_space[torch.argmax(values_tensor).data.item()]
 
-            # # Calculate the max reward from the all actions
-            # for action in self.action_space:
-            #     # add nonholonomic model
-            #     # dif = ((state.self_state.vx - action.vx)**2 + (state.self_state.vy - action.vy)**2)**0.5
-            #     dif = 0
-            #     if dif <= self.acc_lin:
-            #         # Recalculate the new state of the robot after the action 
-            #         next_self_state = self.propagate(state.self_state, action)
-            #         # Calculate the next states of the humans and the reward for the action
-            #         if self.query_env:
-            #             next_human_states, reward, done, info = self.env.onestep_lookahead(action)
-            #         else:
-            #             next_human_states = [self.propagate(human_state, ActionXY(human_state.vx, human_state.vy))
-            #                             for human_state in state.human_states]
-            #             reward = self.compute_reward(next_self_state, next_human_states)
-            #         # Unify the robot state vector with humans state vector
-            #         batch_next_states = torch.cat([torch.Tensor([next_self_state + next_human_state]).to(self.device)
-            #                                     for next_human_state in next_human_states], dim=0)
-            #         # The output of rotate in the agent-centric coordinate: dg, v_pref, theta, radius, vx, vy, px1, py1, vx1, vy1, radius1, da, radius_sum
-            #         rotated_batch_input = self.rotate(batch_next_states).unsqueeze(0)
-            #         if self.with_om:
-            #             if occupancy_maps is None:
-            #                 occupancy_maps = self.build_occupancy_maps(next_human_states).unsqueeze(0)
-            #             rotated_batch_input = torch.cat([rotated_batch_input, occupancy_maps.to(self.device)], dim=2)
-            #         # VALUE UPDATE
-            #         next_state_value = self.model(rotated_batch_input).data.item()
-            #         value = reward + pow(self.gamma, self.time_step * state.self_state.v_pref) * next_state_value
-            #         self.action_values.append(value)
-            #         if value > max_value:
-            #             max_value = value
-            #             max_action = action
             if max_action is None:
                 raise ValueError('Value network is not well trained. ')
         if self.phase == 'train':
@@ -128,7 +97,6 @@ class MultiHumanRL(CADRL):
         if collision:
             reward = -0.25
         elif reaching_goal:
-            # reward = 1
             # The calculation of the distance relation to optimize the reward by pass distance
             if dist_list is None:
                 reward = 1
@@ -144,7 +112,6 @@ class MultiHumanRL(CADRL):
                     dist_real = dist_real + ((action.vx**2+action.vy**2)**0.5)*self.env.time_step
                 reward = (dist_best/dist_real)
         elif dmin < 0.2:
-            # reward = (dmin - 0.2) * 0.5 * self.time_step
             reward = (dmin - 0.2) * 0.5
         else:
             reward = 0

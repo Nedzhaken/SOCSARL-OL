@@ -11,7 +11,6 @@ class Agent(object):
     def __init__(self, config, section):
         """
         Base class for robot and human. Have the physical attributes of an agent.
-
         """
         self.visible = config.getboolean(section, 'visible')
         self.v_pref = config.getfloat(section, 'v_pref')
@@ -112,7 +111,6 @@ class Agent(object):
     def act(self, ob):
         """
         Compute state using received observation and pass it to policy
-
         """
         return
 

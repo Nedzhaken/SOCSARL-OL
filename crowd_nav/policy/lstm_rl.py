@@ -93,7 +93,6 @@ class LstmRL(MultiHumanRL):
 
         To predict the best action, agent samples actions and propagates one step to see how good the next state is
         thus the reward function is needed
-
         """
 
         def dist(human):
@@ -122,7 +121,6 @@ class LstmRL(MultiHumanRL):
             elif reaching_goal:
                 reward = 1
             elif dmin < 0.2:
-                # reward = (dmin - 0.2) * 0.5 * self.time_step
                 reward = -0.1 + 0.05*dmin
             else:
                 reward = 0
