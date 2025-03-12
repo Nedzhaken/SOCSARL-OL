@@ -1,11 +1,11 @@
-2025-03-12 15:57:42, INFO: Using device: cpu
-2025-03-12 15:57:42, INFO: The social coef: 0.600000
-2025-03-12 15:57:42, INFO: Policy: SOCSARL w/ global state
-2025-03-12 15:57:42, INFO: Online Learning: True
-2025-03-12 15:57:42, INFO: Human movement pattern: center
-2025-03-12 15:57:42, INFO: Human number: 5
-2025-03-12 15:57:42, INFO: Not randomize human's radius and preferred speed
-2025-03-12 15:57:42, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
-2025-03-12 15:57:42, INFO: Square width: 10.0, circle width: 4.0
-2025-03-12 15:57:42, INFO: The tracklet coef: 0.750000
-2025-03-12 15:57:42, INFO: The rule for generating human agents: square_crossing
+2025-03-12 16:02:03, INFO: Using device: cpu
+2025-03-12 16:02:03, INFO: The social coef: 0.600000
+2025-03-12 16:02:03, INFO: Policy: SOCSARL w/ global state
+2025-03-12 16:02:03, INFO: Online Learning: True
+2025-03-12 16:02:03, INFO: Human movement pattern: center
+2025-03-12 16:02:03, INFO: Human number: 5
+2025-03-12 16:02:03, INFO: Not randomize human's radius and preferred speed
+2025-03-12 16:02:03, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2025-03-12 16:02:03, INFO: Square width: 10.0, circle width: 4.0
+2025-03-12 16:02:03, INFO: The tracklet coef: 0.750000
+2025-03-12 16:02:03, INFO: The rule for generating human agents: square_crossing
