@@ -154,8 +154,10 @@ If you are considering using this code, please reference the following:
   title = {Online Context Learning for Socially Compliant Navigation},
   author = {Iaroslav Okunevich and Alexandre Lombard and Tomas Krajnik and Yassine Ruichek and Zhi Yan},
   journal = {IEEE Robotics and Automation Letters},
-  volume = {},
-  number = {},
-  year={2025}
+  volume = {10},
+  number = {5},
+  pages={5042--5049},
+  year={2025},
+  publisher={IEEE}
 }
 ```
