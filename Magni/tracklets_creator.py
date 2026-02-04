@@ -241,60 +241,60 @@ class TrackletsCreator:
 
         print(tracklets_csv_name + ' is saved.')
 
-    def animate_trajectories(self, df_index, rob_index, legend = False, robots = False):
+    def animate_trajectories(self, df_index: int, robot_index: int, legend: bool = False, only_robots: bool = False) -> None:
         """
-        Draw the plot of the persons trajectories and rob_index robot trajectoris from df_index database. 
+        Draw the plot of the persons trajectories and robot_index robot trajectory from df_index DataFrame. 
         """
-        # create a figure and axis
         fig, ax = plt.subplots()
         ax.set(xlim=(-9500, 9500), ylim=(-5000, 5000))
 
-        # the lists of trajectory coordinates and lines objects
-        line_coord_list = []
-        ln_list = []
+        # the lists of lines coordinates and lines objects
+        line_coordinates = []
+        lines = []
         
-        # create the object for the frame counter (text)
-        text_kwargs = dict(ha='right', va='top', fontsize=10, color='black')
-        text = ax.text(9500, 5000, '', **text_kwargs, animated=True)
+        # create the object for the time counter (text)
+        text_kwargs = dict(ha = 'right', va = 'top', fontsize = 10, color = 'black')
+        text = ax.text(9500, 5000, '', **text_kwargs, animated = True)
 
         # save the list of trajectories which will be drawn
-        if robots:
-            traject_list = self.robot_trajectories_source_data[df_index]
+        if only_robots:
+            trajectory_list = self.robot_trajectories_source_data[df_index]
             ax.set(xlim=(-14500, 14500), ylim=(-10000, 10000))
-            for tr in traject_list:
-                color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+            for tr in trajectory_list:
+                color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
                 tr.color = color_list[tr.id % len(color_list)]
         else:
-            traject_list = self.people_trajectories_source_data[df_index]
-            traject_list.append(self.robot_trajectories_source_data[df_index][rob_index])
+            trajectory_list = self.people_trajectories_source_data[df_index]
+            trajectory_list.append(self.robot_trajectories_source_data[df_index][robot_index])
 
-        # create the line object for each trajectory
-        for traject in traject_list:
-            (ln,) = ax.plot([], [], color = traject.color, animated=True, label = str(traject.id))
-            ln_list.append(ln)
-            line_coord_list.append([[],[]])
+        # create a line object for each trajectory
+        for traject in trajectory_list:
+            (line,) = ax.plot([], [], color = traject.color, animated = True, label = str(traject.id))
+            lines.append(line)
+            line_coordinates.append([[],[]])
 
-        # draw the legend
-        if legend: ax.legend()
+        if legend:
+            ax.legend()
 
         plt.show(block=False)
         plt.pause(0.1)
         bg = fig.canvas.copy_from_bbox(fig.bbox) 
-        for ln in ln_list: ax.draw_artist(ln)
+        for line in lines:
+            ax.draw_artist(line)
         fig.canvas.blit(fig.bbox)
 
-        # iterate by each frame (time)
         for frame in self.time_counters_source_data[df_index]:
             fig.canvas.restore_region(bg)
-            for traj_num in range(len(traject_list)):
+            for traj_num in range(len(trajectory_list)):
                 # if the frame of last trajectory point is bigger then the current frame plus threshold -> the trajectory is still observed
-                coord = traject_list[traj_num].get_coord_by_frame(frame)
-                if coord[0] != None:
-                    line_coord_list[traj_num][0].append(coord[0])
-                    line_coord_list[traj_num][1].append(coord[1])
+                coord = trajectory_list[traj_num].get_coord_by_frame(frame)
+                if coord[0] is not None:
+                    line_coordinates[traj_num][0].append(coord[0])
+                    line_coordinates[traj_num][1].append(coord[1])
                 # else we need to do the trajectory empty, so it will not be drawn. Also we clean the plot and redraw the axes 
-                ln_list[traj_num].set_data(line_coord_list[traj_num][0], line_coord_list[traj_num][1])
-                ax.draw_artist(ln_list[traj_num])
+                lines[traj_num].set_data(line_coordinates[traj_num][0], line_coordinates[traj_num][1])
+                ax.draw_artist(lines[traj_num])
             # draw the current frame
             frame_string = 'Frame: ' + str(frame)
             text.set_text(frame_string)
@@ -321,7 +321,9 @@ trainer = TrackletsCreator()
 trainer.load_csv_names_source_data()
 trainer.csv_files_data_to_trajectories()
 
+# trainer.animate_trajectories(0, 1, legend = True)
 # trainer.plot_trajectories(0, 0)
+
 time = 4
 hz = 4
 steps = time * hz
