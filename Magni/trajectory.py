@@ -23,12 +23,18 @@ class Trajectory:
         Return the trajectory color. 
         """
         return self.color
+    
+    def set_traject_color(self, color):
+        """
+        Set the trajectory color. 
+        """
+        self.color = color
 
     def plot_traject(self):
         """
         Draw the trajectory. 
         """
-        plt.plot(self.x, self.y)
+        plt.plot(self.x, self.y, color = self.color)
 
     def __str__(self):
         state_str = 'ID: ' + str(self.id) + '\n'

@@ -4,83 +4,242 @@ import matplotlib.pyplot as plt
 import os
 import re
 from trajectory import Trajectory
+from pandas import DataFrame
+
+MAGNI_DATASET_FREQ = 100
 
 class TrackletsCreator:
     def __init__(self):
         """
-        The class to transform our trajectories to tracklets. 
+        The class to transform trajectories to tracklets from source data. 
         """
-        # the name of folder with prepared dataset .csv file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.folder_name = os.path.join(script_dir, 'Clean_data')
-        # the database from .csv file
-        self.df = None
-        # the list of .csv file names
-        self.csv_names = None
-        # the list of tracklet databases
-        self.df_tr_list = []
-        # the list of database trajectories
-        self.traject_ped_list = []
-        self.traject_rob_list = []
-        # the unique frames, which will be used like a time of the simulation
-        self.time_uniq = []
+        source_code_folder_name = os.path.dirname(os.path.abspath(__file__))
+        source_data_folder_name = 'Clean_data'
+        self.folder_path_source_data = os.path.join(source_code_folder_name, source_data_folder_name)
+        self.source_dataset_name = 'THOR-Magni'
+        self.csv_files_names_source_data = []
+        self.people_trajectories_source_data = []
+        self.robot_trajectories_source_data = []
+        self.time_counters_source_data = []
 
-    def load_db(self, name, nrows=None):
+    def load_csv_names_source_data(self, folder_path_source_data: str = None) -> None:
         """
-        Create the DataFrame() from .csv file. 
+        Load csv files names of the source dataset. 
         """
-        file_name = self.folder_name + '/' + name
-        df = pd.read_csv(file_name, nrows=nrows)        
-        df.drop(df.columns[0], axis = 1, inplace=True)    
+        if folder_path_source_data is None:
+            folder_path_source_data = self.folder_path_source_data
+            
+        for object_name in os.listdir(folder_path_source_data):
+            object_full_path = os.path.join(folder_path_source_data, object_name)
+            if os.path.isfile(object_full_path):
+                if self.source_dataset_name in object_name:
+                    self.csv_files_names_source_data.append(object_name)
+
+    def csv_files_data_to_trajectories(self) -> None:
+        """
+        Extract the human and robot trajectories from all csv files of the source dataset.
+        """
+        for csv_file_name in self.csv_files_names_source_data:
+            df = self.load_df_from_csv(csv_file_name) 
+
+            # round the time to remove the time like 0.5600000000001
+            df['Time'] = round(df['Time'], 2)           
+            
+            self.extract_trajectories_from_df(df)
+
+    def load_df_from_csv(self, csv_file_name: str, nrows: int = None) -> DataFrame:
+        """
+        Create a DataFrame from a .csv file. 
+        """
+        csv_file_path = os.path.join(self.folder_path_source_data, csv_file_name)
+        df = pd.read_csv(csv_file_path, nrows=nrows)
+
+        # drop the first column with unnecessary information (Unnamed column)
+        UNNECESSARY_COLUMN = 0
+        df.drop(df.columns[UNNECESSARY_COLUMN], axis = 1, inplace=True)
+
+        self.time_counters_source_data.append(df['Time'].unique())
+
+        return df
+
+    def extract_trajectories_from_df(self, df: DataFrame,
+                                     people_color_list: list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                                                                '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']) -> None:
+        """
+        Extract people and robot trajectories from a dataframe.
+        """
+        # collect all column names for people agents
+        PERSON_KEYWORD = '_person_'
+        person_columns = [column for column in df.columns if re.search(PERSON_KEYWORD, column)]
+
+        PEOPLE_PHRASE_AFTER_ID = '_person_X'
+        people_trajectories = self.extract_trajectories_from_columns(df, person_columns, PEOPLE_PHRASE_AFTER_ID, people_color_list)
+        self.people_trajectories_source_data.append(people_trajectories)
         
-        self.df = df
-        # save time for the simulation
-        self.time_uniq.append(self.df['Time'].unique())
+        rob_idx_columns = ((len(df.columns) - 1) // 2) + 1
+        robot_columns = df.columns[1 : rob_idx_columns]
 
-    def db_to_traj(self, color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']):
+        ROBOT_PHRASE_AFTER_ID = '_X'
+        robot_color_list = ['#000000']
+        robot_trajectories = self.extract_trajectories_from_columns(df, robot_columns, ROBOT_PHRASE_AFTER_ID, robot_color_list)
+        self.robot_trajectories_source_data.append(robot_trajectories)
+
+    def extract_trajectories_from_columns(self, df: DataFrame, columns: list[str], phrase_after_id: str = '', trajectories_color = []) -> list[Trajectory]:
         """
-        Add all trajectories from the current database to the list of trajectories (traject_list).
-        traj_numb is the number of trajectories which will be taken from the database.
+        Extract and save trajectories from df DataFrame with columns names.
         """
-        # choose person columns
-        person_columns = [s for s in self.df.columns if re.search('_person_', s)]
-        # choose robot columns
-        rob_index_columns = ((len(self.df.columns) - 1) // 2) + 1
-        robot_columns = self.df.columns[1:rob_index_columns]   
-        # update the list of persons trajectories
-        traject_list = []
-        person_list = [[person_columns[2*i], person_columns[2*i + 1]] for i in range(int(len(person_columns)/2))]
-        # round the time to remove the time like 0.5600000000001
-        self.df['Time'] = round(self.df['Time'], 2)
-        # save the db information like Trajectories for persons
-        for i in person_list:
-            id = i[0].replace('_person_X', '')
-            frame = self.df['Time'].values
-            x = self.df[i[0]].values
-            y = self.df[i[1]].values
+        trajectories = []
 
-            # if the trajectory exists but includes only nan values
+        agents = self.columns_to_agents(columns)
+
+        X_AGENT_IDX = 0
+        Y_AGENT_IDX = 1
+        TIME_COLUMN = 'Time'
+        for i in agents:
+            id = i[X_AGENT_IDX].replace(phrase_after_id, '')
+            frame = df[TIME_COLUMN].values
+            x = df[i[X_AGENT_IDX]].values
+            y = df[i[Y_AGENT_IDX]].values
+
             if not np.isnan(x).all():
-                traject = Trajectory(id, frame, x, y, color_list)
-                traject_list.append(traject)
-        self.traject_ped_list.append(traject_list)
+                trajectory = Trajectory(id, frame, x, y, trajectories_color)
+                trajectories.append(trajectory)
 
-        # update the list of robots trajectories
-        traject_list = []
-        rob_list = [[robot_columns[2*i], robot_columns[2*i + 1]] for i in range(int(len(robot_columns)/2))]
-        # save the db information like Trajectories for robot
-        for i in rob_list:
-            id = i[0].replace('_X', '')
-            frame = self.df['Time'].values
-            x = self.df[i[0]].values
-            y = self.df[i[1]].values
+        return trajectories
 
-            # if the trajectory exists but includes only nan values
-            if not np.isnan(x).all():
-                traject = Trajectory(id, frame, x, y, color_list)
-                traject.color = '#000000'
-                traject_list.append(traject)
-        self.traject_rob_list.append(traject_list)
+    def columns_to_agents(self, column_names: list) -> list[list]:
+        """
+        Convert the list of column names to the list of agents. 
+        """
+        return [[column_names[2*i], column_names[2*i + 1]] for i in range(int(len(column_names)/2))]
+    
+    def convert_trajectories_to_tracklets(self, tracklet_points_number: int = 4, tracklet_frequency_hz: int = MAGNI_DATASET_FREQ,
+                                            tracklet_csv_folder: str = 'tracklets') -> None:
+        """
+        Convert all robot and human trajectories to tracklets. Save tracklets as csv files. 
+        """        
+        if self.people_trajectories_source_data and self.robot_trajectories_source_data:
+            # the basic datasets include points at each 1/MAGNI_DATASET_FREQ second (MAGNI_DATASET_FREQ hz)
+            if tracklet_frequency_hz != MAGNI_DATASET_FREQ:
+                self.change_people_robots_trajectories_frequency(tracklet_frequency_hz)
+
+            columns_names_tracklets_dataframe = self.create_column_names_for_tracklets(tracklet_points_number)
+
+            for people_trajectories_from_one_file, robot_trajectories_from_one_file in zip(self.people_trajectories_source_data, self.robot_trajectories_source_data):
+                # initialize the data frame with tracklets for the database
+                tracklets_df = pd.DataFrame(columns=columns_names_tracklets_dataframe)
+                tracklets_df = self.transform_trajectories_to_tracklets(tracklets_df, people_trajectories_from_one_file, 'People')
+                tracklets_df = self.transform_trajectories_to_tracklets(tracklets_df, robot_trajectories_from_one_file, 'Robot')
+
+                # save the df with tracklets like .csv file
+                name_index = self.people_trajectories_source_data.index(people_trajectories_from_one_file)
+                self.save_tracklets_df_as_csv(self.csv_files_names_source_data[name_index], tracklets_df, tracklet_csv_folder)
+
+    def change_people_robots_trajectories_frequency(self, new_frequency_hz: int) -> None:
+        """
+        Delete the points from people and robot trajectories based on new frequency. The original frequency is 100. 
+        """
+        new_time_step = 1 / new_frequency_hz
+        
+        for people_trajectories_list, robot_trajectories_list in zip(self.people_trajectories_source_data, self.robot_trajectories_source_data):  
+            self.change_trajectories_new_time_step(people_trajectories_list, new_time_step)
+            self.change_trajectories_new_time_step(robot_trajectories_list, new_time_step)
+                
+    def change_trajectories_new_time_step(self, trajectory_list: list[Trajectory], new_time_step: int) -> None:
+        """
+        Delete the points from trajectories based on new time step. The original time step is 0.01 . 
+        """
+        for trajectory in trajectory_list:
+            # initialise the start time of any trajectory
+            time = 0.01
+            x_new, y_new, frames_new = [], [], []
+            while (time <= trajectory.frames[-1]):
+                time_idx = trajectory.frames.index(time)
+
+                x_new.append(trajectory.x[time_idx])
+                y_new.append(trajectory.y[time_idx])
+                frames_new.append(time)
+
+                time = round(time + new_time_step, 2) 
+            
+            trajectory.x, trajectory.y = x_new, y_new
+            trajectory.frames = frames_new
+
+    def create_column_names_for_tracklets(self, tracklet_length_in_points: int) -> list:
+        """
+        Create a list of column names for the future Dataframe with tracklets.
+        The first column 'Type' is responsible for the type of the tracklet: the tracklet was created from a human or a robot trajectory.
+        """
+        first_column = 'Type'
+        columns_names = [first_column]
+
+        for i in range(tracklet_length_in_points):
+            columns_names.append('Point_' + str(i + 1))
+
+        return columns_names
+    
+    def transform_trajectories_to_tracklets(self, df_tracklets: DataFrame, trajectories: list[Trajectory], trajectories_type_name: str) -> DataFrame:
+        """
+        Transform trajectories to tracklets. Add the velocities of tracklet's points.  
+        """   
+        columns_names_tracklets_dataframe = list(df_tracklets)
+        tracklet_points_number = len(columns_names_tracklets_dataframe) - 1
+
+        for trajectory in trajectories:
+            start_tracklet_index = 0
+
+            while (start_tracklet_index + tracklet_points_number < len(trajectory.x)):
+                # choose the sub-trajectory
+                x_tracklet = trajectory.x[start_tracklet_index : start_tracklet_index + tracklet_points_number]
+                y_tracklet = trajectory.y[start_tracklet_index : start_tracklet_index + tracklet_points_number]                
+                trajectory_time = trajectory.frames
+
+                # if the sub trajectory doesn't include nan values create a tracklet
+                if not np.isnan(x_tracklet).any():
+                    tracklet = [[x_point_value, y_point_value] for x_point_value, y_point_value in zip(x_tracklet, y_tracklet)]
+
+                    # check if the tracklet is not a repeatable point or nan
+                    tracklet_repeatable = True
+                    for i in tracklet[1:]:
+                        if tracklet[0] != i:
+                            tracklet_repeatable = False
+
+                    if not tracklet_repeatable:
+                        # calculate velocity and add it to the tracklet
+                        # TODO: recalculate velocities of first point of a tracklet
+                        Vx_point_value, Vy_point_value = 0, 0
+                        tracklet[0].append(Vx_point_value)
+                        tracklet[0].append(Vy_point_value)
+
+                        point_index = 1
+                        while point_index < len(tracklet):
+                            dt = trajectory_time[point_index] - trajectory_time[point_index - 1]
+                            Vx_point_value = (tracklet[point_index][0] - tracklet[point_index - 1][0])/dt
+                            Vy_point_value = (tracklet[point_index][1] - tracklet[point_index - 1][1])/dt  
+                            tracklet[point_index].append(Vx_point_value)
+                            tracklet[point_index].append(Vy_point_value)
+                            point_index += 1
+
+                        new_row = {'Type': trajectories_type_name}
+                        for column_name, point_tracklet in zip(columns_names_tracklets_dataframe[1:], tracklet):
+                            new_row[column_name] = point_tracklet
+                        df_tracklets = pd.concat([df_tracklets, pd.DataFrame([new_row])], ignore_index=True)
+                start_tracklet_index += tracklet_points_number
+
+        return df_tracklets
+
+    def save_tracklets_df_as_csv(self, file_name: str, tracklets_df: DataFrame, folder_name: str = 'tracklets') -> None:
+        """
+        Save the tracklets Dataframe as a csv.file in folder_name with the file_name.
+        """
+        if not os.path.isdir(folder_name):
+            os.mkdir(folder_name)
+
+        tracklets_csv_name = folder_name + '/tracklets_' + file_name
+
+        tracklets_df.to_csv(tracklets_csv_name, na_rep=np.nan)
+
+        print(tracklets_csv_name + ' is saved.')
 
     def animate_trajectories(self, df_index, rob_index, legend = False, robots = False):
         """
@@ -100,14 +259,14 @@ class TrackletsCreator:
 
         # save the list of trajectories which will be drawn
         if robots:
-            traject_list = self.traject_rob_list[df_index]
+            traject_list = self.robot_trajectories_source_data[df_index]
             ax.set(xlim=(-14500, 14500), ylim=(-10000, 10000))
             for tr in traject_list:
                 color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
                 tr.color = color_list[tr.id % len(color_list)]
         else:
-            traject_list = self.traject_ped_list[df_index]
-            traject_list.append(self.traject_rob_list[df_index][rob_index])
+            traject_list = self.people_trajectories_source_data[df_index]
+            traject_list.append(self.robot_trajectories_source_data[df_index][rob_index])
 
         # create the line object for each trajectory
         for traject in traject_list:
@@ -125,7 +284,7 @@ class TrackletsCreator:
         fig.canvas.blit(fig.bbox)
 
         # iterate by each frame (time)
-        for frame in self.time_uniq[df_index]:
+        for frame in self.time_counters_source_data[df_index]:
             fig.canvas.restore_region(bg)
             for traj_num in range(len(traject_list)):
                 # if the frame of last trajectory point is bigger then the current frame plus threshold -> the trajectory is still observed
@@ -146,201 +305,25 @@ class TrackletsCreator:
 
             plt.pause(0.0001)
 
-    def plot_trajectories(self, df_index, rob_index, robots = False):
+    def plot_trajectories(self, dataframe_idx: int, robot_trajectory_idx: int) -> None:
         """
-        Draw the plot of the current trajectories. 
+        Draw all people trajectories and a robot trajectory with index robot_trajectory_idx from dataframe_idx Dataframe. 
         """
-        # save the list of trajectories which will be drawn
-        if robots:
-            traject_list = self.traject_rob_list[df_index]
-        else:
-            traject_list = self.traject_ped_list[df_index]
-            traject_list.append(self.traject_rob_list[df_index][rob_index])
+        trajectories = self.people_trajectories_source_data[dataframe_idx]
+        trajectories.append(self.robot_trajectories_source_data[dataframe_idx][robot_trajectory_idx])
 
-        for i in traject_list:
-            i.plot_traject()
+        for trajectory in trajectories:
+            trajectory.plot_traject()
+        
         plt.show()
-
-    def cut_trajectory_hz(self, hz):
-        """
-        Delete the points from trajectories based on hz. The original hz is 100. 
-        """
-        # choose the time step
-        time_step = 1 / hz
-        # iteration by different files.
-        for person_traj_list, robot_traj_list in zip(self.traject_ped_list, self.traject_rob_list):  
-            # iterations by different trajectories
-            for trajectory in person_traj_list:
-                # initialise the start time 
-                time = 0.01
-                x_new, y_new, frames_new = [], [], []
-                # iterations by each points of the trajectory
-                while (time <= trajectory.frames[-1]):
-                    # find the index of the point for the time
-                    index = trajectory.frames.index(time)
-                    # add x, y and time value to the lists
-                    x_new.append(trajectory.x[index])
-                    y_new.append(trajectory.y[index])
-                    frames_new.append(time)
-                    # update time
-                    time = round(time + time_step, 2) 
-                # update the trajectory
-                trajectory.x, trajectory.y = x_new, y_new
-                trajectory.frames = frames_new
-
-            # iterations by different trajectories
-            for trajectory in robot_traj_list:
-                # initialise the start time      
-                time = 0.01
-                x_new, y_new, frames_new = [], [], []
-                # iterations by each points of the trajectory
-                while (time <= trajectory.frames[-1]):
-                    # find the index of the point for the time
-                    index = trajectory.frames.index(time)
-                    # add x, y and time value to the lists
-                    x_new.append(trajectory.x[index])
-                    y_new.append(trajectory.y[index])
-                    frames_new.append(time)
-                    # update time
-                    time = round(time + time_step, 2) 
-                # update the trajectory
-                trajectory.x, trajectory.y = x_new, y_new
-                trajectory.frames = frames_new
-
-    def create_tracklets(self, step = 4, hz = 100, save = False, folder = 'tracklets', velocity = False):
-        """
-        Transform all robot and human trajectories to tracklets. Save it. 
-        """        
-        # transform the trajectories if they exist
-        if self.traject_ped_list and self.traject_rob_list:
-            # the basic datasets include points at each 0.01 second (100 hz)
-            # we can decrease the number of points for more realistic application
-            if hz != 100:
-                self.cut_trajectory_hz(hz)
-            # initialize the column names of data frame with tracklets
-            columns_names = ['Type']
-            for i in range(step):
-                columns_names.append('Point_' + str(i + 1))
-            # iteration by different files
-            for person_traj_list, robot_traj_list in zip(self.traject_ped_list, self.traject_rob_list):
-                # initialize the data frame with tracklets for the database
-                df_tr = pd.DataFrame(columns=columns_names)
-                # iterations by different trajectories
-                for trajectory in person_traj_list:
-                    index = 0
-                    # split the trajectory to the tracklets
-                    while (index + step < len(trajectory.x)):
-                        # choose the sub-trajectory
-                        x = trajectory.x[index:index + step]
-                        y = trajectory.y[index:index + step]
-                        if velocity:
-                            frames = trajectory.frames
-                        # if the sub trajectory doesn't include nan values create a tracklet
-                        if not np.isnan(x).any():
-                            tracklet = [[x_value, y_value] for x_value, y_value in zip(x, y)]
-                            # check if the tracklet is not a repeatable point or nan
-                            flag_repeat = False
-                            for i in tracklet[1:]:
-                                if tracklet[0] != i: flag_repeat = True
-                            # save the tracklet
-                            if flag_repeat:                                
-                                # calculate velocity and add it to the tracklet if the velocity flag is set
-                                if velocity:
-                                    # initialise the velocity of the first tracklets point
-                                    Vx, Vy = 0, 0
-                                    tracklet[0].append(Vx)
-                                    tracklet[0].append(Vy)
-                                    point_index = 1
-                                    while point_index < len(tracklet):
-                                        dt = frames[point_index] - frames[point_index - 1]
-                                        Vx = (tracklet[point_index][0] - tracklet[point_index - 1][0])/dt
-                                        Vy = (tracklet[point_index][1] - tracklet[point_index - 1][1])/dt  
-                                        tracklet[point_index].append(Vx)
-                                        tracklet[point_index].append(Vy)                                      
-                                        point_index += 1
-                                new_row = {'Type':'People'}
-                                for name, point in zip(columns_names[1:], tracklet):
-                                    new_row[name] = point
-                                df_tr = df_tr.append(new_row, ignore_index=True)
-                        index += step
-                # iterations by different trajectories
-                for trajectory in robot_traj_list:
-                    index = 0
-                    # split the trajectory to the tracklets
-                    while (index + step < len(trajectory.x)):
-                        # choose the sub-trajectory
-                        x = trajectory.x[index:index + step]
-                        y = trajectory.y[index:index + step]
-                        if velocity:
-                            frames = trajectory.frames
-                        # if the sub trajectory doesn't include nan values create a tracklet
-                        if not np.isnan(x).any():
-                            tracklet = [[x_value, y_value] for x_value, y_value in zip(x, y)]
-                            # check if the tracklet is not a repeatable point or nan
-                            flag_repeat = False
-                            for i in tracklet[1:]:
-                                if tracklet[0] != i: flag_repeat = True
-                            # save the tracklet.
-                            if flag_repeat:
-                                # calculate velocity and add it to the tracklet if the velocity flag is set
-                                if velocity:
-                                    # initialise the velocity of the first tracklets point
-                                    Vx, Vy = 0, 0
-                                    tracklet[0].append(Vx)
-                                    tracklet[0].append(Vy)
-                                    point_index = 1
-                                    while point_index < len(tracklet):
-                                        dt = frames[point_index] - frames[point_index - 1]
-                                        Vx = (tracklet[point_index][0] - tracklet[point_index - 1][0])/dt
-                                        Vy = (tracklet[point_index][1] - tracklet[point_index - 1][1])/dt  
-                                        tracklet[point_index].append(Vx)
-                                        tracklet[point_index].append(Vy)                                      
-                                        point_index += 1
-                                new_row = {'Type':'Robot'}
-                                for name, point in zip(columns_names[1:], tracklet):
-                                    new_row[name] = point
-                                df_tr = df_tr.append(new_row, ignore_index=True)
-                        index += step 
-                # save the df with tracklets like .csv file
-                if save:
-                    name_index = self.traject_ped_list.index(person_traj_list)
-                    self.save_tracklets(self.csv_names[name_index], df_tr, folder)
-
-    def save_tracklets(self, file_name, df_tr, folder = 'tracklets'):
-        # create the folder for tracklets
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
-        # save df tracklet
-        name = folder + '/tracklets_' + file_name
-        df_tr.to_csv(name, na_rep=np.nan)
-        print(name + ' is saved.')
-
-    def load_csv_from_folder(self, folder = None):
-        """
-        Load the whole prepared dataset. 
-        """
-        # directory/folder path
-        if folder == None:
-            dir_path = self.folder_name
-        else:
-            dir_path = folder
-        # list to store files
-        self.csv_names = []
-        # Iterate directory
-        for file_path in os.listdir(dir_path):
-            # check if current file_path is a file
-            if os.path.isfile(os.path.join(dir_path, file_path)):
-                if 'THOR-Magni' in file_path:
-                    # add filename to list
-                    self.csv_names.append(file_path)
-        for file_name_db in self.csv_names:
-            self.load_db(file_name_db)
-            self.db_to_traj()
             
 trainer = TrackletsCreator()
-trainer.load_csv_from_folder()
+trainer.load_csv_names_source_data()
+trainer.csv_files_data_to_trajectories()
+
+# trainer.plot_trajectories(0, 0)
 time = 4
 hz = 4
 steps = time * hz
 folder_name = 'tracklets_' + str(time) + 's_' + str(hz) + 'hz_v'
-trainer.create_tracklets(step = steps, hz = hz, save = True, folder = folder_name, velocity = True)
+trainer.convert_trajectories_to_tracklets(tracklet_points_number = steps, tracklet_frequency_hz = hz, tracklet_csv_folder = folder_name)
