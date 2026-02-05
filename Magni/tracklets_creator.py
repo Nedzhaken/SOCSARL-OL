@@ -9,14 +9,14 @@ from pandas import DataFrame
 MAGNI_DATASET_FREQ = 100
 
 class TrackletsCreator:
-    def __init__(self):
+    """Class for transforming trajectories into tracklets from source data."""
+    def __init__(self, source_data_folder_name: str = 'Clean_data', source_dataset_name: str = 'THOR-Magni'):
         """
-        The class to transform trajectories to tracklets from source data. 
+        Load csv files names of the source dataset. 
         """
         source_code_folder_name = os.path.dirname(os.path.abspath(__file__))
-        source_data_folder_name = 'Clean_data'
         self.folder_path_source_data = os.path.join(source_code_folder_name, source_data_folder_name)
-        self.source_dataset_name = 'THOR-Magni'
+        self.source_dataset_name = source_dataset_name
         self.csv_files_names_source_data = []
         self.people_trajectories_source_data = []
         self.robot_trajectories_source_data = []
@@ -317,15 +317,17 @@ class TrackletsCreator:
         
         plt.show()
             
-trainer = TrackletsCreator()
-trainer.load_csv_names_source_data()
-trainer.csv_files_data_to_trajectories()
+if __name__ == "__main__":
 
-# trainer.animate_trajectories(0, 1, legend = True)
-# trainer.plot_trajectories(0, 0)
+    trainer = TrackletsCreator()
+    trainer.load_csv_names_source_data()
+    trainer.csv_files_data_to_trajectories()
 
-time = 4
-hz = 4
-steps = time * hz
-folder_name = 'tracklets_' + str(time) + 's_' + str(hz) + 'hz_v'
-trainer.convert_trajectories_to_tracklets(tracklet_points_number = steps, tracklet_frequency_hz = hz, tracklet_csv_folder = folder_name)
+    # trainer.animate_trajectories(0, 1, legend = True)
+    # trainer.plot_trajectories(0, 0)
+
+    time = 4
+    hz = 4
+    steps = time * hz
+    folder_name = 'tracklets_' + str(time) + 's_' + str(hz) + 'hz_v'
+    trainer.convert_trajectories_to_tracklets(tracklet_points_number = steps, tracklet_frequency_hz = hz, tracklet_csv_folder = folder_name)

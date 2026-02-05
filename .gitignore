@@ -1,3 +1,5 @@
 # Python bytecode
 __pycache__/
 *.py[cod]
+
+tracklets_4s_4hz_v_old/
