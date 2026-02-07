@@ -8,6 +8,18 @@ class Trajectory:
         self.y = y.tolist()
         self.color = color_list[self.id % len(color_list)]
 
+    def get_traject_x(self):
+        """
+        Return the list of X coordinates of the trajectory.
+        """
+        return self.x
+    
+    def get_traject_y(self):
+        """
+        Return the list of Y coordinates of the trajectory.
+        """
+        return self.y
+
     def get_coord_by_frame(self, frame, default = None):
         """
         Get the list with coordinates X, Y of the person in the frame. If the trajectory doesn't have this frame, return [None, None]
@@ -17,6 +29,12 @@ class Trajectory:
             return [self.x[index], self.y[index]]
         except ValueError:
             return [default, default]
+        
+    def get_traject_frames(self):
+        """
+        Return the trajectory time frames. 
+        """
+        return self.frames
 
     def get_traject_color(self):
         """
@@ -43,3 +61,6 @@ class Trajectory:
             coord_str = 'Coord: {:5.4f} {:5.4f}\n'.format(self.x[i], self.y[i])
             state_str = state_str +  frame_str + coord_str
         return state_str
+    
+    def __len__(self):
+        return len(self.get_traject_x())
