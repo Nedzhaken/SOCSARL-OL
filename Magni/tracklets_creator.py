@@ -180,7 +180,7 @@ class TrackletsCreator:
     
     def transform_trajectories_to_tracklets(self, df_tracklets: DataFrame, trajectories: list[Trajectory], trajectories_type_name: str) -> DataFrame:
         """
-        Transform trajectories to tracklets. Add the velocities of tracklet's points.  
+        Transform trajectories to tracklets. Add the velocities of tracklet's points.
         """   
         columns_names_tracklets_dataframe = list(df_tracklets)
         tracklet_points_number = len(columns_names_tracklets_dataframe) - 1
@@ -188,34 +188,27 @@ class TrackletsCreator:
         for trajectory in trajectories:
             start_tracklet_index = 0
 
-            while (start_tracklet_index + tracklet_points_number < len(trajectory.x)):
+            while (start_tracklet_index + tracklet_points_number < len(trajectory)):
                 # choose the sub-trajectory
-                x_tracklet = trajectory.x[start_tracklet_index : start_tracklet_index + tracklet_points_number]
-                y_tracklet = trajectory.y[start_tracklet_index : start_tracklet_index + tracklet_points_number]                
-                trajectory_time = trajectory.frames
+                x_tracklet = trajectory.get_traject_x()[start_tracklet_index : start_tracklet_index + tracklet_points_number]
+                y_tracklet = trajectory.get_traject_y()[start_tracklet_index : start_tracklet_index + tracklet_points_number]                
+                trajectory_time = trajectory.get_traject_frames()
 
                 # if the sub trajectory doesn't include nan values create a tracklet
                 if not np.isnan(x_tracklet).any():
                     tracklet = [[x_point_value, y_point_value] for x_point_value, y_point_value in zip(x_tracklet, y_tracklet)]
 
-                    # check if the tracklet is not a repeatable point or nan
-                    tracklet_repeatable = True
-                    for i in tracklet[1:]:
-                        if tracklet[0] != i:
-                            tracklet_repeatable = False
-
-                    if not tracklet_repeatable:
+                    if not self.is_tracklet_repeatable(tracklet):
                         # calculate velocity and add it to the tracklet
-                        # TODO: recalculate velocities of first point of a tracklet
-                        Vx_point_value, Vy_point_value = 0, 0
-                        tracklet[0].append(Vx_point_value)
-                        tracklet[0].append(Vy_point_value)
+                        V_first_point_tracklet = self.get_start_traclet_velocity(trajectory, start_tracklet_index)
+                        tracklet[0].append(V_first_point_tracklet[0])
+                        tracklet[0].append(V_first_point_tracklet[1])
 
                         point_index = 1
                         while point_index < len(tracklet):
                             dt = trajectory_time[point_index] - trajectory_time[point_index - 1]
                             Vx_point_value = (tracklet[point_index][0] - tracklet[point_index - 1][0])/dt
-                            Vy_point_value = (tracklet[point_index][1] - tracklet[point_index - 1][1])/dt  
+                            Vy_point_value = (tracklet[point_index][1] - tracklet[point_index - 1][1])/dt
                             tracklet[point_index].append(Vx_point_value)
                             tracklet[point_index].append(Vy_point_value)
                             point_index += 1
@@ -227,6 +220,37 @@ class TrackletsCreator:
                 start_tracklet_index += tracklet_points_number
 
         return df_tracklets
+    
+    def is_tracklet_repeatable(self, tracklet: list[list]) -> bool:
+        """
+        Check whether a tracklet consists of repeated identical points.
+        """ 
+        for point in tracklet[1:]:
+            if tracklet[0] != point:
+                return False
+        
+        return True
+
+    def get_start_traclet_velocity(self, trajectory: Trajectory, start_tracklet_idx: int) -> tuple[float, float]:
+        """
+        Return the agent velocity at the start of the tracklet. If the previous data is unavailable, return (0.0, 0.0)
+        """ 
+        Vx, Vy = 0.0, 0.0
+
+        if start_tracklet_idx != 0:
+            x_coordinates, y_coordinates = trajectory.get_traject_x(), trajectory.get_traject_y()
+
+            if not np.isnan(x_coordinates[start_tracklet_idx - 1]) and not np.isnan(y_coordinates[start_tracklet_idx - 1]):
+                trajectory_time = trajectory.get_traject_frames()
+
+                x, y = x_coordinates[start_tracklet_idx], y_coordinates[start_tracklet_idx]
+                x_1, y_1 = x_coordinates[start_tracklet_idx - 1], y_coordinates[start_tracklet_idx - 1]                
+                dt = trajectory_time[start_tracklet_idx] - trajectory_time[start_tracklet_idx - 1]
+
+                Vx = (x - x_1)/dt
+                Vy = (y - y_1)/dt
+        
+        return (Vx, Vy)
 
     def save_tracklets_df_as_csv(self, file_name: str, tracklets_df: DataFrame, folder_name: str = 'tracklets') -> None:
         """

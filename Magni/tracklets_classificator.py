@@ -120,8 +120,8 @@ class TrackletsClassificator:
             # (batch_size) containing the index of the class label that was hot for each sequence
             if output.size()[0] != 1:
                 output = torch.squeeze(output)
-                output = torch.unsqueeze(output,0)
-            target = torch.unsqueeze(target,0)
+                output = torch.unsqueeze(output, 0)
+            target = torch.unsqueeze(target, 0)
             loss = criterion(output, target)  # Step ②
 
             # clear the gradient buffers of the optimized parameters.
