@@ -11,7 +11,7 @@ def track_creator():
 @pytest.fixture
 def track_creator_loaded(track_creator):
     """TrackCreator with CSV file names loaded."""
-    folder_path_source_data = os.path.join(os.path.dirname(__file__), "data", "Clean_data")
+    folder_path_source_data = os.path.join(os.path.dirname(__file__), "test_data", "Clean_data")
     track_creator.load_csv_names_source_data(folder_path_source_data)
     return track_creator
 
@@ -34,7 +34,7 @@ def test_convert_trajectories_to_tracklets(track_creator_trajectories):
     time = 4
     hz = 4
     steps = time * hz
-    folder_name = os.path.join(test_folder_path, f"data/tracklets_{time}s_{hz}hz_v")
+    folder_name = os.path.join(test_folder_path, f"test_data/tracklets_{time}s_{hz}hz_v")
 
     track_creator_trajectories.convert_trajectories_to_tracklets(
         tracklet_points_number=steps,
