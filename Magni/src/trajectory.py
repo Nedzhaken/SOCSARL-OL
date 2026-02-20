@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Trajectory:
-    def __init__(self, id, frames, x, y, color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']):
+    def __init__(self, id: int, frames: np.ndarray, x: np.ndarray, y: np.ndarray, color_list = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']):
         self.id = int(id)
         self.frames = frames.tolist()
         self.x = x.tolist()
@@ -20,7 +21,7 @@ class Trajectory:
         """
         return self.y
 
-    def get_coord_by_frame(self, frame, default = None):
+    def get_coord_by_frame(self, frame: float, default = None):
         """
         Get the list with coordinates X, Y of the person in the frame. If the trajectory doesn't have this frame, return [None, None]
         """

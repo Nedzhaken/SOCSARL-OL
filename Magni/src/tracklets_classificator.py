@@ -8,8 +8,9 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from sklearn.model_selection import KFold
-from tracklets_dataset import TrackletsDataset, TrackletNormalization, ToTensor
-from social_rnn import SocialRNN
+from Magni.src.social_rnn import SocialRNN
+from Magni import os_change_folder
+from Magni.src.tracklets_dataset import TrackletsDataset, TrackletNormalization, ToTensor
 
 SEED = 1000
 
@@ -183,7 +184,16 @@ class TrackletsClassificator:
         """
         Save the current version of model. 
         """
-        model_path = f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pth"
+        script_folder_name = os.path.dirname(os.path.abspath(__file__))
+        model_folder_name = os_change_folder(script_folder_name, 'src', 'model')
+
+        os.makedirs(model_folder_name, exist_ok=True)
+
+        model_path = os.path.join(
+            model_folder_name,
+            f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pth"
+        )
+        
         torch.save(self.model.state_dict(), model_path)
 
     def plot_learning_result(self, history_train: dict, history_test: dict):
@@ -289,7 +299,11 @@ class TrackletsClassificator:
         return self.model
     
 if __name__ == "__main__":
-    classificator = TrackletsClassificator(data_folder_name = 'tracklets_4s_4hz_v', hidden_size = 16, normalization = True)
+    script_folder_name = os.path.dirname(os.path.abspath(__file__))
+    data_folder_name = "data".join(script_folder_name.rsplit("src", 1))
+    dataset_folder_name = data_folder_name + '/tracklets_4s_4hz_v'
+
+    classificator = TrackletsClassificator(data_folder_name = dataset_folder_name, hidden_size = 16, normalization = True)
 
     batch_size = 32
     train_size = int(0.7 * len(classificator.dataset))
@@ -306,7 +320,7 @@ if __name__ == "__main__":
     # setup the RNN and training settings
     criterion   = nn.BCELoss()
     optimizer   = torch.optim.RMSprop(classificator.model.parameters(), lr=0.001)
-    max_epochs  = 50
+    max_epochs  = 1
 
     print('batch_size ' + str(batch_size))
     print(criterion)

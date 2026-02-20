@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import re
-from trajectory import Trajectory
 from pandas import DataFrame
+from Magni.src.trajectory import Trajectory
+from Magni import os_change_folder
 
 MAGNI_DATASET_FREQ = 100
 
@@ -15,7 +16,8 @@ class TrackletsCreator:
         Load csv files names of the source dataset. 
         """
         source_code_folder_name = os.path.dirname(os.path.abspath(__file__))
-        self.folder_path_source_data = os.path.join(source_code_folder_name, source_data_folder_name)
+        data_folder_name = os_change_folder(source_code_folder_name, 'src', 'data')
+        self.folder_path_source_data = os.path.join(data_folder_name, source_data_folder_name)
         self.source_dataset_name = source_dataset_name
         self.csv_files_names_source_data = []
         self.people_trajectories_source_data = []
@@ -28,6 +30,8 @@ class TrackletsCreator:
         """
         if folder_path_source_data is None:
             folder_path_source_data = self.folder_path_source_data
+        else:
+            self.folder_path_source_data = folder_path_source_data
             
         for object_name in os.listdir(folder_path_source_data):
             object_full_path = os.path.join(folder_path_source_data, object_name)
@@ -353,5 +357,7 @@ if __name__ == "__main__":
     time = 4
     hz = 4
     steps = time * hz
-    folder_name = 'tracklets_' + str(time) + 's_' + str(hz) + 'hz_v'
+    script_folder_name = os.path.dirname(os.path.abspath(__file__))
+    data_folder_name = os_change_folder(script_folder_name, 'src', 'data')
+    folder_name = data_folder_name + '/tracklets_' + str(time) + 's_' + str(hz) + 'hz_v'
     trainer.convert_trajectories_to_tracklets(tracklet_points_number = steps, tracklet_frequency_hz = hz, tracklet_csv_folder = folder_name)
