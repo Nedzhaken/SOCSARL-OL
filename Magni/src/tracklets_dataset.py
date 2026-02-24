@@ -6,6 +6,7 @@ from typing import Callable, Optional
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
+from Magni import os_change_folder
 
 class TrackletsDataset(Dataset):
     """A torch dataset for work with tracklets."""
@@ -128,6 +129,7 @@ class ToTensor(object):
                 'label': torch.tensor(label, dtype=torch.int8)}
 
 if __name__ == "__main__":
-    DATASET_FOLDER_NAME = 'tracklets_4s_4hz_v'
+    script_folder_name = os.path.dirname(os.path.abspath(__file__))
+    DATASET_FOLDER_NAME = os_change_folder(script_folder_name, 'src', 'data/tracklets_4s_4hz_v')
 
     dataset = TrackletsDataset(DATASET_FOLDER_NAME, transforms.Compose([TrackletNormalization(), ToTensor()]))

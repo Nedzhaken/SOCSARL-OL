@@ -8,9 +8,9 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from sklearn.model_selection import KFold
-from Magni.src.social_rnn import SocialRNN
 from Magni import os_change_folder
 from Magni.src.tracklets_dataset import TrackletsDataset, TrackletNormalization, ToTensor
+from Magni.src.social_rnn import SocialRNN
 
 SEED = 1000
 
