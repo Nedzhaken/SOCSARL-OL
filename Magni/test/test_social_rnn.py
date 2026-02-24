@@ -1,5 +1,4 @@
 import torch
-import pytest
 from Magni.src.social_rnn import SocialRNN
 
 def test_forward_output_shape():
