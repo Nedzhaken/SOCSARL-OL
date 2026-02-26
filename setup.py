@@ -24,6 +24,7 @@ setup(
         'scipy',
         'torch',
         'torchvision',
+        'pandas',
     ],
     extras_require={
         'test': [
