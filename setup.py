@@ -18,7 +18,7 @@ setup(
     ],
     install_requires=[
         'gitpython',
-        'gym==0.21.0',
+        'gym==0.18.0',
         'matplotlib',
         'numpy',
         'scipy',
