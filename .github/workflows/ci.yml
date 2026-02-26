@@ -30,7 +30,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install pytest
 
       - name: Run tests
