@@ -25,6 +25,7 @@ setup(
         'torch',
         'torchvision',
         'pandas',
+        'pytest'
     ],
     extras_require={
         'test': [

@@ -18,10 +18,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python with pip cache
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            setup.cfg
+            setup.py
 
       - name: Upgrade pip
         run: |
@@ -29,8 +34,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install --no-build-isolation -e .
-          pip install pytest
+          pip install -e .
 
       - name: Run tests
         run: |
