@@ -13,8 +13,7 @@ class Trajectory:
         """
         Return the list of X coordinates of the trajectory.
         """
-        return 0
-        # return self.x
+        return self.x
     
     def get_traject_y(self):
         """
