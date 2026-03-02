@@ -18,24 +18,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python with pip cache
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-            setup.cfg
-            setup.py
 
-      - name: Upgrade pip
+      - name: Cache virtual environment
+        id: cache-venv
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: >
+            venv-${{ runner.os }}-${{ matrix.python-version }}-${{
+            hashFiles('pyproject.toml', 'setup.cfg', 'setup.py', 'requirements.txt')
+            }}
+
+      - name: Create virtual environment (if not cached)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip
-
-      - name: Install package
-        run: |
           pip install -e .
+          pip install pytest
 
       - name: Run tests
         run: |
-          python -m pytest -v
+          source .venv/bin/activate
+          pytest -v
