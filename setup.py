@@ -18,8 +18,9 @@ setup(
     ],
     install_requires=[
         'gitpython',
-        # 'gym==0.18.0',
-        'matplotlib',
+        'gym==0.18.0',
+        'pyparsing==2.4.7',
+        'matplotlib==3.7.5',
         'numpy',
         'scipy',
         'torch',
