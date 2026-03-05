@@ -132,7 +132,8 @@ class Drawer:
         plt.xticks(fontname = "Times New Roman")
         if save:
             dir_path = 'Picture'
-            if not os.path.exists(dir_path): os.makedirs(dir_path)
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
             fig.savefig(dir_path + '/' + 'Plot.png', dpi=300)
 
             img = Image.open(dir_path + '/' + 'Plot.png') 

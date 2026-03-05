@@ -49,7 +49,7 @@ The **data/Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the M
   - #### `train_and_test_k_fold(dataset, criterion, max_epochs, k_folds = 5, verbose=True)`
     - Trains and tests the social module using **k-fold cross-validation**.
 
-#### `plot.py`
+#### `src/plot.py`
 - Contains the **Drawer** class, which draws the human trajectory and its robot non-social copy.
 - **Key functions:**
 
