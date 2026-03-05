@@ -1,6 +1,6 @@
 # SOCSARL-OL
 
-**[`Paper`](http://arxiv.org/abs/2406.11495) | [`Data`]() | [`Video`](https://youtu.be/bwmoqu_fyUo)**
+**[`Paper`](http://arxiv.org/abs/2406.11495) | [`Data`](http://thor.oru.se/magni.html) | [`Video`](https://youtu.be/bwmoqu_fyUo)**
 
 This repository contains the code and data for our paper titled **Online Context Learning for Socially-compliant Navigation**.
 
@@ -19,40 +19,35 @@ The objective of this research is to enhance the social efficiency and reliabili
 <img src="Conceptual_diagram.jpg" alt="Conceptual_diagram.jpg" width="1000" />
 
 ## Train the Social module on the Magni dataset
-The **Magni** folder contains the trajectory dataset used for training, which is located in the **Clean_data** folder. These trajectories consist of the human trajectories from the Magni dataset and their copies created using the ORCA algorithm to have non-social trajectories.
-The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni dataset.  
+The **Magni** folder contains the trajectory dataset used for training, which is located in the **data/Clean_data** folder. These trajectories consist of the human trajectories from the Magni dataset and their copies created using the ORCA algorithm to have non-social trajectories.
+The **data/Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni dataset.  
 
-- Each tracklet consists of **16 points** (`step = 16`).
-- The frequency of points in a tracklet is **4 Hz** (`hz = 4`).
-- Each point includes the agent's velocity (`velocity = True`).
+- Each tracklet consists of **16 points** (`tracklet_points_number = 16`).
+- The frequency of points in a tracklet is **4 Hz** (`tracklet_frequency_hz = 4`).
+- Each point includes the agent's velocity.
   
 ## Files and Their Functions
 
-#### `tracklets_creator.py`
+#### `src/tracklets_creator.py`
 - Contains the **TrackletsCreator** class, which processes the dataset by reading data, building trajectories, and splitting them into tracklets.
 - **Key functions:**
 
-  - #### `load_csv_from_folder(folder=None)`
-    - Loads CSV dataset files from a specified `folder`.  
-    - If no folder is specified, it defaults to the folder set in the class constructor (**Clean_data**).
-
-  - #### `create_tracklets(step, hz, save=True, folder, velocity)`
-    - Generates tracklets from the trajectories and saves them as CSV files in the specified `folder` (if `save=True`).
+  - #### `convert_trajectories_to_tracklets(tracklet_points_number, tracklet_frequency_hz, tracklet_csv_folder)`
+    - Convert all robot and human trajectories to tracklets. Save tracklets as csv files.
     - **Parameters:**
-      - `step` – Number of points in each tracklet.
-      - `hz` – Frequency of points in a tracklet.
-      - `velocity` – If `True`, tracklets will include the agent’s velocity.
+      - `tracklet_points_number` – Number of points in each tracklet.
+      - `tracklet_frequency_hz` – Sampling frequency (in Hz) of the points within each tracklet.
+      - `tracklet_csv_folder` – Directory where the generated tracklet CSV files will be saved.
 
-#### `classification.py`
+#### `src/tracklets_classificator.py`
 - Contains the **TrackletsClassificator** class, which classifies tracklets as **social** or **non-social**.
 - **Key functions:**
 
-  - #### `train_and_test(train_dataloader, criterion, optimizer, max_epochs)`
-    - Trains the social module using CSV files with tracklets.
+  - #### `train_and_test(train_data_gen, test_data_gen, criterion, optimizer, max_epochs, verbose = True)`
+    - Trains, tests, and saves the social module. Additionally, it generates visualizations of loss and accuracy results.
 
-  - #### `train_and_test_k_fold(train_dataloader, criterion, optimizer, max_epochs)`
-    - Trains the social module using CSV files with tracklets.
-    - Evaluates loss-accuracy using **k-fold cross-validation**.
+  - #### `train_and_test_k_fold(dataset, criterion, max_epochs, k_folds = 5, verbose=True)`
+    - Trains and tests the social module using **k-fold cross-validation**.
 
 #### `plot.py`
 - Contains the **Drawer** class, which draws the human trajectory and its robot non-social copy.
@@ -68,28 +63,28 @@ The **Tracklet_4s_4hz_v** folder contains preprocessed tracklets from the Magni 
     - `index` – Index of the human-robot trajectory pair to plot (`ped_traj[index]` and `rob_traj[index]`).
     - `save` – Boolean flag indicating whether to save the plot as a `.pdf` file.
 
-## Running the Code
-```
-cd Magni
-```
-(Optional) To generate tracklets with different parameters (`step, hz, velocity`) from the saved trajectories, run the following commands:
-```
-python3 tracklets_creator.py
-```
-To train the social module, run the following commands:
-```
-python3 classification.py
-```
-
-## Setup of CrowdNav simulator
+## Setup of SOCSARL-RL (CrowdNav simulator and Magni package)
 1. Install [Python-RVO2](https://github.com/sybrenstuvel/Python-RVO2) library
-2. Install crowd_sim and crowd_nav into pip
+2. Install magni, crowd_sim, and crowd_nav into pip
 ```
 pip3 install -e .
 ```
-(optional) Uninstall crowd_sim and crowd_nav from pip
+(optional) Uninstall magni, crowd_sim, and crowd_nav from pip
 ```
-pip3 uninstall crowdnav
+pip3 uninstall socsarl
+```
+
+## Getting Started in Magni
+```
+cd Magni
+```
+(Optional) To generate tracklets with different parameters (`tracklet_points_number, tracklet_frequency_hz`) from the saved trajectories, run the following commands:
+```
+python3 src/tracklets_creator.py
+```
+To train the social module, run the following commands:
+```
+python3 src/tracklets_classificator.py
 ```
 
 ## Getting Started in CrowdNav simulator

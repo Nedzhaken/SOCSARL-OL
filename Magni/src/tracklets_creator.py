@@ -120,7 +120,7 @@ class TrackletsCreator:
     def convert_trajectories_to_tracklets(self, tracklet_points_number: int = 4, tracklet_frequency_hz: int = MAGNI_DATASET_FREQ,
                                             tracklet_csv_folder: str = 'tracklets') -> None:
         """
-        Convert all robot and human trajectories to tracklets. Save tracklets as csv files. 
+        Convert all robot and human trajectories to tracklets. Save tracklets as csv files.
         """        
         if self.people_trajectories_source_data and self.robot_trajectories_source_data:
             # the basic datasets include points at each 1/MAGNI_DATASET_FREQ second (MAGNI_DATASET_FREQ hz)

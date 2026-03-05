@@ -3,4 +3,4 @@ __pycache__/
 *.py[cod]
 
 tracklets_4s_4hz_v_old/
-crowdnav.egg-info
+socsarl.egg-info

@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(
-    name='crowdnav',
+    name='socsarl',
     version='0.0.1',
     packages=[
         'crowd_nav',

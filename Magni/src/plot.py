@@ -90,7 +90,7 @@ class Drawer:
         Load the whole prepared dataset. 
         """
         # directory/folder path
-        if folder == None:
+        if folder is None:
             dir_path = self.folder_name
         else:
             dir_path = folder
@@ -164,8 +164,10 @@ class Drawer:
             # closing pdf file
             file.close()
 
-trainer = Drawer()
-file_name = 'THOR-Magni_300922_SC5_R4_robot_path_16-01-2024_14_42_57.csv'
-trainer.load_csv_from_folder(file_name = file_name)
-num_traj = 1
-trainer.plot_pair_trajectoies(trainer.traject_ped_list[0], trainer.traject_rob_list[0], index = num_traj, st = 0, end = 6000, save = True)
+if __name__ == "__main__":
+
+    trainer = Drawer()
+    file_name = 'THOR-Magni_300922_SC5_R4_robot_path_16-01-2024_14_42_57.csv'
+    trainer.load_csv_from_folder(file_name = file_name)
+    num_traj = 1
+    trainer.plot_pair_trajectoies(trainer.traject_ped_list[0], trainer.traject_rob_list[0], index = num_traj, st = 0, end = 6000, save = True)
